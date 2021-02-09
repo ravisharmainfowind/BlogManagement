@@ -8,29 +8,21 @@
             <div class="box box-primary box-solid">
                 <div class="box-header box-header-background with-border">
                     <h3 class="box-title">{{ $title }}</h3>
-                    <div class="box-tools pull-right">
-                         @if(auth('web')->user()->role_id==1)
-                        <a href="{{url('admin/users/create')}}" class="btn btn-warning" style="padding-bottom: 3px;"> <i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add</a>
-                        @endif
-                        @if(auth('web')->user()->role_id==2)
-                        <a href="{{url('admin/hr/users/create')}}" class="btn btn-warning" style="padding-bottom: 3px;"> <i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add</a>
-                        @endif
+                    <div class="box-tools pull-right">                        
+                        <a href="{{url('admin/posts/create')}}" class="btn btn-warning" style="padding-bottom: 3px;"> <i class="fa fa-plus" aria-hidden="true"></i>&nbsp; Add</a>  
                     </div>
                 </div>
 
                 <!-- /.box-header --> 
                 <div class="box-body table-responsive">
-                    <table id="user-table" class="table table-bordered table-hover">
-                        <input type="hidden" name="table_name" id="table_name" value="users">
-                        <input type="hidden" name="data_table_name" id="data_table_name" value="user-table">
+                    <table id="post-table" class="table table-bordered table-hover">
+                        <input type="hidden" name="table_name" id="table_name" value="posts">
+                        <input type="hidden" name="data_table_name" id="data_table_name" value="post-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>S NO</th>
-                               <!--  <th>Profile Picture</th> -->
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Mobile Number</th>
+                                <th>Title</th>
                                 <th>Status</th>
                                 <th>Created At</th>
                                 <th class="">Action</th>
@@ -61,8 +53,8 @@
 
 $(document).ready(function () {
      var url = '<?php echo $url; ?>';
-    if ($('#user-table').length > 0) {
-        var tableData = $('#user-table').DataTable({
+    if ($('#post-table').length > 0) {
+        var tableData = $('#post-table').DataTable({
             processing: true,
             serverSide: true,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
@@ -98,7 +90,7 @@ $(document).ready(function () {
                 
                 $('body').off('click', '[id^="changeStatus-"]').on('click', '[id^="changeStatus-"]', function (e) {
                     var self = $(this);
-                    var tbl = 'users';
+                    var tbl = 'posts';
                     var id = $(this).attr('id').split('-')[1];
                     var status = $(this).attr('id').split('-')[2];
 
@@ -137,9 +129,7 @@ $(document).ready(function () {
                 {data: 'id', name: 'id', 'visible': false},
                 {data: 'DT_RowIndex', name: 'DT_RowIndex',orderable: false,searchable: false},
                 //{data: 'profile_picture', name: 'profile_picture', 'visible': true,orderable: false,searchable: false},
-                {data: 'name', name: 'name', 'visible': true},
-                {data: 'email', name: 'email', 'visible': true},
-                {data: 'mobile_number', name: 'mobile_number', 'visible': true},
+                {data: 'title', name: 'title', 'visible': true},
                 {data: 'status', name: 'status'},
                 {data: 'created_at', name: 'created_at','visible': true },
                 {data: 'action', name: 'action', orderable: false},

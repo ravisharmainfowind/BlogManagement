@@ -68,4 +68,44 @@ class CategoryController extends Controller
         return Redirect::to("admin/categories/create")->withWarning("Oops! Something went wrong");
       }
     }
+
+    public function edit(Request $request, $id)
+	{
+	  $data['title'] ='edit category';
+      $data['category_info'] = Category::where('id', $id)->first();
+      $data['category_parent_info'] = Category::where('parent_id', 0)->get();
+	  return view('admin.category.edit', $data);  
+    }
+    
+    public function update(Request $request)
+    {
+      $id = $request->get('id'); 
+      $request->validate([
+        'name'              => 'required',
+        ]
+      );
+      $data['category_info'] =$category_info =Category::where('id', $id)->first();
+
+      if($request->get('parent_id')){
+         $parentId = $request->get('parent_id');
+      }  
+      else{
+         $parentId = $category_info->parent_id;
+      }
+    
+      $category_data = [
+        'name'            => $request->get('name'),
+        'parent_id'       => $parentId,
+        'status'          => ($request->get('status') == 1) ? ('1') : ('0'),
+        'updated_at'      => date('Y-m-d H:i:s'),
+      ];
+      
+      $update_data = Category::where('id', $id)->update($category_data);
+  
+      if($update_data) {
+        return Redirect::to("admin/categories")->withSuccess("Great! Info has been updated");
+      } else {
+        return Redirect::to("admin/categories/".$id."/edit")->withWarning("Oops! Something went wrong");
+      }
+    }
 }
