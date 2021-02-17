@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator, Session, Redirect, Response, DB, Config, File, Mail, Auth;
-use App\Models\{User,User_Role};
+use App\Models\{User,Role_User};
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\Facades\Image;
 
@@ -98,7 +98,7 @@ class UserController extends Controller
         'user_id'       => $last_insert_id,
         'created_at'    => date('Y-m-d H:i:s'),
       ];  
-      $last_insert_id_data = User_Role::insertGetId($user_role_data);  
+      $last_insert_id_data = Role_User::insertGetId($user_role_data);  
     }
 
     if($last_insert_id) {
@@ -163,7 +163,7 @@ class UserController extends Controller
         'user_id'       => $id,
         'created_at'    => date('Y-m-d H:i:s'),
       ];  
-      $last_insert_id_data = User_Role::where('user_id', $id)->update($user_role_data);  
+      $last_insert_id_data = Role_User::where('user_id', $id)->update($user_role_data);  
     }
 
     if($update_data) {

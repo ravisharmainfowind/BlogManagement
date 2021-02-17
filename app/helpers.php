@@ -70,6 +70,7 @@ use Illuminate\Support\Facades\File;
 
 	if (!function_exists('storeImageWithThumb')) {
 		function storeImageWithThumb($file, string $role, string $folderName, string $main_image = null, $thumb_path = null) {
+			
 			if ($file instanceof UploadedFile) {
 				if ($main_image != '') {
 					$d_file = 'public/' . $main_image;
@@ -88,6 +89,7 @@ use Illuminate\Support\Facades\File;
 				//$path = makeFolder('user', 'multipleImages', $unique_path);
 				$path = makeFolder($role,$folderName, $unique_path);
 				$res = $file->move($path, $name); //
+				//print_r($res);die;
 				//$val = storeImageWithThumb($file,'user','multipleImages', $main_image, $thumb_image);
 				if ($res) {
 					$val = array(

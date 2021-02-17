@@ -30,10 +30,24 @@ Route::get('lang-file/{lang}', function($locale){
 	return view('lang');	
 });
 
-Route::get('/admin', function () {
-    return view('welcome');
-})->name('login');
+// Route::get('/admin', function () {
+//     return view('welcome');
+// })->name('login');
 
+Route::get('/register', 'Auth\AuthController@register')->name('register');
+Route::post('/register', 'Auth\AuthController@storeUser');
+Route::get('/login', 'Auth\AuthController@index')->name('login');
+//Route::post('/login', 'Auth\AuthController@authenticate');
+Route::any('userlogin','Auth\AuthController@authenticate');
+Route::post('search-posts','Auth\AuthController@searchPost');
+Route::any('set-session-lg', 'Auth\AuthController@setSession');
+Route::get('/user/verify/{id}', 'Auth\AuthController@verifyUser');
+
+Route::group(['middleware' => 'CheckUserLogin'], function () {
+Route::get('/post/{id}', 'Auth\AuthController@postDetaile');
+Route::get('logout', 'Auth\AuthController@logout')->name('logout');
+Route::get('/home', 'Auth\AuthController@home')->name('home');
+});
 //Admin routes
 Route::namespace('Admin')->prefix('admin')->group(function(){
 	Route::any('change-status', 'AjaxController@changeStatus');

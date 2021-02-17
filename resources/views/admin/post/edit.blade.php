@@ -13,10 +13,10 @@
                 <!-- /.box-header -->
                 <!-- form start -->
                 <div class="box-body">
-                    <form role="form" name="edit-categories" id="edit-categories" action="{{ url('admin/categories/update') }}" method="post" enctype="multipart/form-data">
+                    <form role="form" name="edit-posts" id="edit-posts" action="{{ url('admin/posts/update') }}" method="post" enctype="multipart/form-data">
                         {{ csrf_field() }}
-                        <input type="hidden" name="id" id="id" value="{{ (!empty($category_info->id))?($category_info->id):('') }}">
-                        <input type="hidden" name="status" id="status" value="{{ (!empty($category_info->status))?($category_info->status):('') }}">
+                        <input type="hidden" name="id" id="id" value="{{ (!empty($post_info->id))?($post_info->id):('') }}">
+                        <input type="hidden" name="status" id="status" value="{{ (!empty($post_info->status))?($post_info->status):('') }}">
                         <div class="box-body col-md-12">
                             <div class="row">
                                          
@@ -24,36 +24,70 @@
 
                             <div class="row">
                                 <div class="form-group col-md-6 ">
-                                    <label for="name">Name<span class="text-danger">*</span></label>
-                                    <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value="{{old('name', (!empty($category_info->name)) ? ($category_info->name) : (''))}}"></span>
-                                    @if ($errors->has('name'))
+                                    <label for="title">Title<span class="text-danger">*</span></label>
+                                    <input type="text" name="title" class="form-control" id="title" placeholder="Enter Title" value="{{old('title', (!empty($post_info->title)) ? ($post_info->title) : (''))}}"></span>
+                                    @if ($errors->has('title'))
                                     <p class="error">
-                                        <i class="fa fa-times-circle-o"></i>  {{ $errors->first('name') }}
+                                        <i class="fa fa-times-circle-o"></i>  {{ $errors->first('title') }}
                                     </p>
                                     @endif
                                 </div>
-                                <div class="form-group col-md-6 ">
-                                    <label for="parent_id">Parent Category<span class="text-danger">*</span></label>
-                                    <select name="parent_id" type="text" id="parent_id" class="form-control box-size select2">
-                                      <option value="">Select Category</option> 
-                                        @if(!empty($category_parent_info))
-                                            @foreach($category_parent_info as $c)
-                                                <!-- <option value="{{ $c->id }}" {{ (!empty($category_info->parent_id))?(($category_info->parent_id == $c->parent_id)?('selected'):('')):('') }} >{{$c->name}}</option> -->
-                                                <option value="{{ $c->id }}" >{{$c->name}}</option>
-                                                @endforeach
+                                <div class="form-group col-md-6">
+                                    <label>Category</label>
+                                    <select class="form-control select2" name="category[]" id="category_id" multiple>
+                                        <option value="">Select Category</option>                                  
+                                        @foreach($category_info as $category)     
+                                         @if(!empty($post_info->postCategories))
+                                            @foreach($post_info->postCategories as $post_cat_id)
+                                                <option value="{{ $category->id }}" {{ (!empty($category->id))?(($post_cat_id->category_id == $category->id)?('selected'):('')):('') }}>{{ $category->name }}</option>
+                                            @endforeach
                                         @endif
+                                        @endforeach 
+
+
                                     </select>
-                                    @if ($errors->has('parent_id'))
+                                    @if ($errors->has('category'))
                                     <p class="error">
-                                        <i class="fa fa-times-circle-o"></i>  {{ $errors->first('parent_id') }}
+                                        <i class="fa fa-times-circle-o"></i>  {{ $errors->first('category') }}
                                     </p>
                                     @endif
-                                </div>    
+                                </div>   
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6 ">
+                                    <label for="publish_date">Publish Date<span class="text-danger">*</span></label>
+                                    <input type="text" name="publish_date" class="form-control" id="publish_date" placeholder="Enter Publish Date" value="{{old('publish_date', (!empty($post_info->publish_date)) ? (date('d-m-Y', strtotime($post_info->publish_date))) : (''))}}">
+                                    @if ($errors->has('publish_date'))
+                                    <p class="error">
+                                        <i class="fa fa-times-circle-o"></i>  {{ $errors->first('publish_date') }}
+                                    </p>
+                                    @endif
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-md-6">
-                                    <a href="{{ url('admin/categories') }}" class="btn btn-danger">Cancel</a>
-                                    <button id="btn-categories" type="submit" class="btn btn-primary">Submit</button>
+                                    <label for="image">Image</label>
+                                    <input type="file" name="feature_image" id="feature_image">
+                                    
+                                </div>
+                                 
+                                 <!-- {{ url('/storage/app/public/feature_image/'.$post_info->feature_image)}} -->
+                                <div class="col-md-6">
+                                    <img src="{{ asset('public/'.$post_info->feature_image) }}" height="75" width="75">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <div class="form-group purple-border">
+                                      <label for="exampleFormControlTextarea4">Description</label>
+                                      <textarea name="description" id="description">{{old('description', (!empty($post_info->description)) ? ($post_info->description) : (''))}}</textarea>
+                                  </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <a href="{{ url('admin/posts') }}" class="btn btn-danger">Cancel</a>
+                                    <button id="btn-posts" type="submit" class="btn btn-primary">Submit</button>
                                 </div>
                             </div>    
                         </div>
@@ -66,31 +100,41 @@
 @endsection
 
 @section('js')
-
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhX4GLdqtMBWhIAWcFKPVZMVjXrV_2hDQ&libraries=places"></script>
-
-
     <script src="{{ asset('public/Admin/my-js/bootstrap-datetimepicker.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('public/Admin/select2.min.js') }}"></script>
-
+    <script src="https://cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
     <script>
         $(document).ready(function () {   
-            $('#birth_date').datepicker({ 
-                dateFormat: 'yy-mm-dd',
-            });
+            $('#publish_date').datepicker({ 
+            dateFormat: 'yy-mm-dd',
+        });
+
+            CKEDITOR.replace('description');
 
             $('.select2').select2();
 
-            $("form[name='edit-categories']").validate({
+            $("form[name='edit-posts']").validate({
             rules: {
-                name: {
+                title: {
                 required: true
+                },
+                category:{
+                 require:true   
+                },
+                publish_date: {
+                    required: true
                 },
             },
 
             messages: {
-                name: {
-                    require: "Please enter name"
+                title: {
+                    required: "Please enter title"
+                },
+                publish_date: {
+                    required: "Please select date"
+                },
+                category: {
+                    required: "This Select Category."
                 },
             },
 

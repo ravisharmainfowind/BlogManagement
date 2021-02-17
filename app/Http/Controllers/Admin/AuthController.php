@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Validator, Session, Redirect, Response, DB, Config, File, Mail, Auth;
 use Illuminate\Http\UploadedFile;
 use Intervention\Image\Facades\Image;
-use App\Models\{User, Product};
+use App\Models\{User,Role,Role_User,Product};
 
 class AuthController extends Controller
 {
@@ -34,23 +34,31 @@ class AuthController extends Controller
     		]);
     	if (auth('web')->attempt($credentials)) {
             $user = auth('web')->user();
-            if($user->role_id == '1')
+            
+            foreach ($user->roles as $role) {
+               $ids[] = $role->id;  
+            }
+            // $length = count($ids);
+            // print_r($ids);die;
+            $user_id = $user->roles[0]['id'];
+    
+            if($user_id == '1')
             {
                 return redirect()->intended('admin/dashboard');
-            }elseif($user->role_id == '2'){
+            }elseif($user_id == '2'){
                 return redirect()->intended('admin/dashboard');
-            }elseif($user->role_id == '3'){
+            }elseif($user_id == '3'){
                 return redirect()->intended('admin/dashboard');
             }
             else
             {
                 Auth::guard('web')->logout();
                 return redirect('admin/login')->withInput()->withWarnings([
-                    'error' => __('message.THIS_IS_NOT_VALID_USER')
+                    'error' => 'THIS IS NOT VALID USER'
                 ]);
             }
         }
-        return redirect('admin/login')->withInput()->withWarnings(['error' => __('message.INVALID_CREADENTIALS')]);
+        return redirect('admin/login')->withInput()->withWarnings(['error' => 'INVALID CREADENTIALS']);
     }
 
     /* For Get Forget Password Form */

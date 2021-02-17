@@ -29,6 +29,15 @@
         </a>
       </li>
       @endif
+
+      @if(auth('web')->user()->role_id==2)
+      <li>
+        <a href="{{ url('admin/posts') }}">
+         <i class="fa fa-home" aria-hidden="true"></i>
+          <span>Posts</span>
+        </a>
+      </li>
+      @endif
       
   </ul>
   </section>

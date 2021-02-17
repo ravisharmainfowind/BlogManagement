@@ -16,15 +16,22 @@ class PostController extends Controller
 	{
     $data['title'] ="All Post";
     
-    if ($request->ajax()) {    
-         $query = Post::query();
+    if ($request->ajax()) { 
+        $role_id = auth()->user()->role_id;
+        $id = auth()->user()->id;
+        $query = Post::query();   
          if ($request->get('start_date')) {
         $query->whereDate('posts.created_at', '>=', date("Y-m-d", strtotime($request->get('start_date'))));
       }
       if ($request->get('end_date')) {
         $query->whereDate('posts.created_at', '<=', date("Y-m-d", strtotime($request->get('end_date'))));
       }
-         return datatables()->of($query->orderBy('id', 'desc'))
+          if($role_id == '1'){
+            $result = datatables()->of($query->orderBy('id', 'desc'));
+          }else{
+            $result = datatables()->of($query->where('posted_by',$id)->orderBy('id', 'desc'));
+          }  
+         return $result
          ->addIndexColumn()
          ->editColumn('feature_image', 'admin.datatable.image.post-image')  
          ->editColumn('status','admin.datatable.status.post-status')
@@ -40,4 +47,114 @@ class PostController extends Controller
         $data['category_info'] = Category::where('status', 1)->get();		
 		return view('admin.post.add',$data);
     }
+
+    public function store(Request $request)
+    {
+      //dd($request->all());
+      $request->validate([
+        'title'              => 'required',
+        'category'           => 'required',
+        'publish_date'       => 'required',
+        'feature_image'      => 'required|mimes:png,jpeg,gif',
+      ]);
+      
+      $categories            = $request->get('category');
+
+      $post_data = [
+        'title'                  => $request->get('title'),
+       // 'category'               => $request->get('category'),
+        'publish_date'           => date('Y-m-d', strtotime($request->get('publish_date'))),
+        'description'            => $request->get('description'),
+        'posted_by'             => auth()->user()->id,
+        'status'                 => ($request->get('status') == 1) ? ('1') : ('0'),
+        'created_at'             => date('Y-m-d H:i:s'),
+      ];
+      if($request->hasFile('feature_image'))
+    {
+        $main_image = '';
+        $imageResult = storeImageWithThumb(@$request->file('feature_image'), 'feature_image', 'avatars', $main_image);
+        $post_data['feature_image'] = $imageResult['path'];
+    }
+      $last_insert_id = Post::insertGetId($post_data);
+     
+      foreach($categories as $key => $cat)
+      {
+          $post_cat = [
+            'category_id' => $cat,
+            'post_id'    => $last_insert_id,
+            'created_at' => date('Y-m-d H:i:s'),
+
+          ];
+          
+          $result = Post_Category::insertGetId($post_cat);
+      
+      }
+
+      if($last_insert_id) {
+        return Redirect::to("admin/posts")->withSuccess("Great! Info has been added");
+      } else {
+        return Redirect::to("admin/posts/create")->withWarning("Oops! Something went wrong");
+      }
+    }
+    public function edit(Request $request, $id)
+	{
+		$data['title'] ='Edit Post';
+    $data['category_info'] = Category::where('status', 1)->get();
+    $data['post_category_info'] = Post_Category::where('post_id', $id)->get();
+	  $data['post_info'] = Post::where('id', $id)->with(['postCategories'])->first();
+	  return view('admin.post.edit', $data);  
+	}
+
+  public function update(Request $request)
+  {
+    $id = $request->get('id');
+    $request->validate([
+      'title'              => 'required',
+      'category'           => 'required',
+      'publish_date'       => 'required',
+      //'feature_image'      => 'required|mimes:png,jpeg,gif',
+    ]);
+    $categories            = $request->get('category');
+    
+    $post_data = [
+      'title'              => $request->get('title'),
+      'publish_date'       => date('Y-m-d', strtotime($request->get('publish_date'))),
+      'description'        => $request->get('description'),
+      'posted_by'          => auth()->user()->id,
+      'status'             => ($request->get('status') == 1) ? ('1') : ('0'),
+      'updated_at'         => date('Y-m-d H:i:s'),
+    ];
+     
+       if($request->hasFile('feature_image')) {
+       $main_image = '';
+       if (!empty($id)) {
+           $getData = Post::where('id', $id)->first(array('feature_image'));
+           $main_image = $getData->feature_image;
+      }
+         $imageResult = storeImageWithThumb(@$request->file('feature_image'), 'feature_image', 'avatars', $main_image);
+         $post_data['feature_image'] = $imageResult['path'];
+      }
+
+    $update = Post::where('id', $id)->update($post_data);
+    if($categories){
+      $post = Post_Category::where('post_id',$id)->delete();
+    }
+  
+    foreach($categories as $key => $cat)
+      {
+          $post_cat = [
+            'category_id' => $cat,
+            'post_id'    => $id,
+            'created_at' => date('Y-m-d H:i:s'),
+          ];         
+          
+          $result = Post_Category::insertGetId($post_cat);
+      }    
+
+    if($update) {
+      return Redirect::to("admin/posts")->withSuccess("Great! Info has been added");
+    } else {
+      return Redirect::to("admin/posts/create")->withWarning("Oops! Something went wrong");
+    }
+  }
 }

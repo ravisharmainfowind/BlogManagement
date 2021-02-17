@@ -18,8 +18,13 @@
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            
               @if(auth('web')->user()->profile_picture)
-               <img src="{{ asset('public/Admin/users_profile/'.auth('web')->user()->profile_picture) }}" class="user-image" alt="User Image">
+               <?php
+                $arr = auth('web')->user()->profile_picture;
+                $image = str_replace("storage/users/","/",$arr,$i);
+                ?>
+               <img src="{{ url('/storage/app/public/users/').$image }}" class="user-image" alt="User Image">
                @else
                <img src="{{ asset('public/Admin/no-image.png') }}" class="user-image" alt="User Image">
               @endif
@@ -29,7 +34,12 @@
               <!-- User image -->
               <li class="user-header">
                @if(auth('web')->user()->profile_picture)
-               <img src="{{ asset('public/Admin/users_profile/'.auth('web')->user()->profile_picture) }}" class="img-circle" alt="User Image">
+               <?php
+                $arr = auth('web')->user()->profile_picture;
+                $image = str_replace("storage/users/","/",$arr,$i);
+              ?>
+               <img src="{{ url('/storage/app/public/users/').$image }}" class="user-image" alt="User Image">
+               <!-- <img src="{{ asset('public/Admin/users_profile/'.auth('web')->user()->profile_picture) }}" class="img-circle" alt="User Image"> -->
                @else
                <img src="{{ asset('public/Admin/no-image.png') }}" class="img-circle" alt="User Image">
               @endif

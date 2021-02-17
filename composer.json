@@ -17,6 +17,7 @@
         "laravel/passport": "^8.4",
         "laravel/socialite": "^5.0",
         "laravel/tinker": "^2.0",
+        "laravelcollective/html": "^5.3.0",
         "yajra/laravel-datatables-oracle": "^9.9"
     },
     "require-dev": {
